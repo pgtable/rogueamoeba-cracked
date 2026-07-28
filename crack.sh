@@ -90,7 +90,7 @@ tui_status() {
 
 tui_draw() {
   local i name
-  printf '\033[H\033[J'
+  printf '\033[H'
   printf '\n  %s%srogue amoeba cracker%s %sv%s%s\n' \
     "$C_BOLD" "$C_MAGENTA" "$C_RESET" "$C_DIM" "$VERSION" "$C_RESET"
   printf '  %scracked by pgtable%s\n\n' "$C_DIM" "$C_RESET"
@@ -105,7 +105,7 @@ tui_draw() {
 
   printf '\n'
   tui_status
-  printf '\n  %sspace toggle · a all · n none · enter crack · q quit%s\033[K' \
+  printf '\n  %sspace toggle · a all · n none · enter crack · q quit%s\033[K\033[J' \
     "$C_DIM" "$C_RESET"
 }
 
@@ -114,18 +114,17 @@ tui_pick() {
 
   for ((i = 0; i < n; i++)); do SELECTED[i]=0; done
 
-  printf '\033[?25l'
+  printf '\033[?25l\033[H\033[J'
   tui_draw
 
   while IFS= read -rsn1 key < /dev/tty; do
     MSG=""
     case $key in
       $'\033')
-        read -rsn2 -t 0.05 rest < /dev/tty || rest=""
+        read -rsn2 -t 1 rest < /dev/tty || rest=""
         case $rest in
           '[A') (( CURSOR > 0 )) && ((CURSOR -= 1)) ;;
           '[B') (( CURSOR < n )) && ((CURSOR += 1)) ;;
-          '')   break ;;
         esac
         ;;
       k) (( CURSOR > 0 )) && ((CURSOR -= 1)) ;;
